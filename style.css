@@ -1,0 +1,129 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+}
+
+.header {
+    background-color: #87CEFA;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    margin: 0;
+    color: #fff;
+}
+
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.left-panel {
+    width: 40%;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.right-panel {
+    width: 55%;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+input, button {
+    font-size: 16px;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    cursor: pointer;
+}
+
+.input-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 垂直方向に中央揃え */
+}
+
+.input-container input {
+    width: calc(45% - 10px);
+}
+.input-container span {
+    margin-left: 5px; /* cmテキストの間隔を少し調整 */
+}
+
+.rate-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* ボタンとテキストの間隔を調整 */
+}
+
+.rate-text {
+    margin-left: 2px;
+    font-size: 14px;
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+.time-header, .input-header {
+    background-color: #87CEFA; /* 水色の背景色 */
+    text-align: center;
+    font-size: 22px; /* タイトルの文字の大きさ */
+    padding: 5px; /* 上下の余白 */
+    border-radius: 5px; /* 角を丸める */
+    margin-top: 14px; /* 上部に余白を追加 */
+    color: #fff; /* 文字色を白に */
+}
+		
+		/* ボタンを左詰めに */
+.button-container {
+display: flex;
+justify-content: flex-start;
+gap: 10px;
+}
+
+.graph {
+width: 80%;
+height: 80%;
+background-color: lightgray;
+border-radius: 10px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+.main-container {
+flex-direction: column;
+}
+.left-panel, .right-panel {
+width: 100%;
+}
+}
