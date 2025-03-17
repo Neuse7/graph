@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全領域設定アプリ</title>
+	    <!-- Plotly.jsのCDNを読み込む -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="icon" href="Demo.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="Demo180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="Demo192.png">
+    <link rel="mask-icon" href="Demo.svg" color="#5bbad5">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>安全領域設定アプリ</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <!-- 探す・切断ボタン -->
+			<div class="button-container">
+                <button id="scanButton">探す</button>
+                <button id="disconnectButton" disabled>切断</button>
+			</div>
+            <div class="input-header">安全領域の設定</div>
+            <!-- 数値入力フィールド -->
+            <div class="input-container">
+                <input type="number" id="value1" value="0"　placeholder="a" min="0" step="1">
+                <input type="number" id="value4" value="0"　placeholder="X" min="0" step="1">
+                <span>cm</span>
+            </div>
+            <div class="input-container">
+                <input type="number" id="value2" value="0"　placeholder="b" min="0" step="1">
+                <input type="number" id="value5" value="0"　placeholder="Y" min="0" step="1">
+                <span>cm</span>
+            </div>
+            <div class="input-container">
+                <input type="number" id="value3" value="0"　placeholder="c" min="0" step="1">
+                <input type="number" id="value6" value="0"　placeholder="Z" min="0" step="1">
+                <span>cm</span>
+            </div>
+
+            <div class="button-container">
+			    <button id="sendButton" disabled>送信</button>
+			</div>
+
+            <!-- 測距間隔の変更 -->
+            <div class="time-header">測距間隔の変更</div>
+            <div class="rate-container">
+                <button id="fastRateButton" disabled>Fast Rate</button>
+                <span class="rate-text">(60ms)</span>
+                <button id="slowRateButton" disabled>Slow Rate</button>
+                <span class="rate-text">(100ms)</span>
+                <button id="demoRateButton" disabled>Demo Rate</button>
+                <span class="rate-text">(200ms)</span>
+            </div>
+
+            <div id="messageDiv" class="message"></div>
+        </div>
+
+        <div class="right-panel">
+            <!-- グラフを描画する場所 -->
+            <div id="graph" class="graph"></div>
+        </div>
+    </div>
+
+    <script src="sketch.js"></script>
+
+</body>
+</html>
