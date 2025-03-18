@@ -80,7 +80,7 @@ function drawCuboid() {
             yaxis: {title: 'Y'},
             zaxis: {title: 'Z'}
         },
-        margin: { l: 0, r: 0, b: 0, t: 40 }  // グラフの余白を調整
+        responsive: true
     };
 
     // エッジを結ぶためのラインを描画
