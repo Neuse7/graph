@@ -26,7 +26,6 @@ h1 {
     justify-content: space-between;
     padding: 20px;
     flex: 1;
-    overflow: hidden;
 }
 
 .left-panel {
@@ -104,26 +103,27 @@ button {
     color: #fff; /* 文字色を白に */
 }
 		
-		/* ボタンを左詰めに */
+/* ボタンを左詰めに */
 .button-container {
-display: flex;
-justify-content: flex-start;
-gap: 10px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
 }
 
 .graph {
-width: 80%;
-height: 80%;
-background-color: lightgray;
-border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    background-color: lightgray;
+    border-radius: 10px;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-.main-container {
-flex-direction: column;
-}
-.left-panel, .right-panel {
-width: 100%;
-}
+    .main-container {
+        flex-direction: column;
+	width: 90%;
+    }
+    .left-panel, .right-panel {
+        width: 100%;
+    }
 }
