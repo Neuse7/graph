@@ -26,10 +26,11 @@ h1 {
     justify-content: space-between;
     padding: 20px;
     flex: 1;
+    gap: 20px;
 }
 
 .left-panel {
-    width: 40%;
+    width: 35%;
     background: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -74,17 +75,9 @@ button {
 }
 .input-container span {
     margin-left: 5px; /* cmテキストの間隔を少し調整 */
-}
-
-.rate-container {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* ボタンとテキストの間隔を調整 */
-}
-
-.rate-text {
-    margin-left: 2px;
-    font-size: 14px;
+    text-align: left; /* cmテキストを左詰めにする */
+    display: inline-block; /* 左詰めにするためにinline-blockを使用 */
+    width: 100%; /* これによりspan要素が親要素の幅を取る */
 }
 
 .message {
@@ -93,7 +86,7 @@ button {
     font-weight: bold;
     color: #333;
 }
-.time-header, .input-header {
+.input-header {
     background-color: #87CEFA; /* 水色の背景色 */
     text-align: center;
     font-size: 22px; /* タイトルの文字の大きさ */
