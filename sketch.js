@@ -1,9 +1,6 @@
 const scanButton = document.getElementById('scanButton');
 const disconnectButton = document.getElementById('disconnectButton');
 const sendButton = document.getElementById('sendButton');
-const fastRateButton = document.getElementById('fastRateButton');
-const slowRateButton = document.getElementById('slowRateButton');
-const demoRateButton = document.getElementById('demoRateButton');
 const messageDiv = document.getElementById('messageDiv');
 const value1 = document.getElementById('value1');
 const value2 = document.getElementById('value2');
@@ -70,17 +67,8 @@ function drawCuboid() {
             size: 10,  // 原点のサイズを大きく
             color: 'rgb(0, 0, 0)',  // 黒色
             symbol: 'circle'
-        }
-    };
-
-    // グラフのレイアウト設定
-    var layout = {
-        scene: {
-            xaxis: {title: 'X'},
-            yaxis: {title: 'Y'},
-            zaxis: {title: 'Z'}
         },
-        responsive: true
+	showlegend: false
     };
 
     // エッジを結ぶためのラインを描画
@@ -93,6 +81,70 @@ function drawCuboid() {
         edge_z.push(vertices[start][2], vertices[end][2], null);
     }
 
+    // 最大の範囲に合わせるための調整
+    var max_range = Math.max(Math.max(...x_vals), Math.max(...y_vals), Math.max(...z_vals), 0);
+    var min_range = Math.min(Math.min(...z_vals), Math.min(...y_vals), Math.min(...x_vals), 0);
+
+    // グラフのレイアウト設定
+    var layout = {
+        scene: {
+            xaxis: {
+                title: 'X',
+                range: [min_range - 1, max_range + 1]
+            },
+            yaxis: {
+                title: 'Y',
+                range: [min_range - 1, max_range + 1]
+            },
+            zaxis: {
+                title: 'Z',
+                range: [min_range - 1, max_range + 1]
+            },
+            aspectmode: 'cube' 
+        },
+        responsive: true  // レスポンシブにする
+    };
+
+    var xvector={
+    //x軸方向のベクトル
+        type: 'scatter3d',
+        mode: 'lines',
+        x: [0, max_range>>3],//原点からx方向に向かうベクトル
+        y: [0, 0],
+        z: [0, 0],
+        line:{
+            color: 'red',
+            width: 4
+        },
+        showlegend: false
+    };
+    var yvector={
+    //y軸方向のベクトル
+        type: 'scatter3d',
+        mode: 'lines',
+        x: [0, 0],
+        y: [0, max_range>>3],//原点からy方向に向かうベクトル
+        z: [0, 0],
+        line:{
+            color: 'green',
+            width: 4
+        },
+        showlegend: false
+    };
+    var zvector={
+    //z軸方向のベクトル
+        type: 'scatter3d',
+        mode: 'lines',
+        x: [0, 0],
+        y: [0, 0],
+        z: [0, max_range>>3],//原点からz方向に向かうベクトル
+        line:{
+            color: 'blue',
+            width: 4
+        },
+        showlegend:false
+    };
+
     // エッジのデータを追加
     var data = [{
         type: 'scatter3d',
@@ -103,8 +155,9 @@ function drawCuboid() {
         line: {
             color: 'rgb(255, 0, 0)',
             width: 3
-        }
-    }, origin];
+        },
+        showlegend: false
+    }, origin, xvector, yvector, zvector];
 
     // グラフを描画
     Plotly.newPlot('graph', data, layout);
@@ -139,6 +192,21 @@ function getCurrentTimeString() {
     return timeString;
 }
 
+function resetButtons() {
+    scanButton.disabled = false;
+    sendButton.disabled = true;
+    disconnectButton.disabled = true;
+    fastRateButton.disabled = true; // Disable Fast Rate button
+    slowRateButton.disabled = true; // Disable Slow Rate button
+    demoRateButton.disabled = true; // Disable Slow Rate button
+}
+		
+// 接続が切れた場合の処理
+function handleDisconnection() {
+    resetButtons();
+    displayMessage('デバイスが切断されました');
+}
+
 scanButton.addEventListener('click', async () => {
     try {
         const options = {
@@ -146,6 +214,8 @@ scanButton.addEventListener('click', async () => {
             optionalServices: [UART_SERVICE_UUID]
         };
         const device = await navigator.bluetooth.requestDevice(options);
+	// 接続が切れたときのイベントを設定
+        device.addEventListener('gattserverdisconnected', handleDisconnection);
         await connectToDevice(device);
     } catch (error) {
         console.error('Error during scan:', error);
@@ -168,9 +238,6 @@ async function connectToDevice(selectedDevice) {
         await txCharacteristic.startNotifications();
 
         sendButton.disabled = false;
-        fastRateButton.disabled = false; // Enable Fast Rate button
-        slowRateButton.disabled = false; // Enable Slow Rate button
-        demoRateButton.disabled = false; // Enable Slow Rate button
         disconnectButton.disabled = false;
         displayMessage('接続完了');
     } catch (error) {
@@ -188,12 +255,7 @@ disconnectButton.addEventListener('click', async () => {
             txCharacteristic = null;
             rxCharacteristic = null;
 
-            disconnectButton.disabled = true;
-            sendButton.disabled = true;
-            fastRateButton.disabled = true; // Disable Fast Rate button
-            slowRateButton.disabled = true; // Disable Slow Rate button
-            demoRateButton.disabled = true; // Disable Slow Rate button
-            displayMessage('デバイスが切断されました');
+            handleDisconnection(); // 接続切れ時の処理
         }
     } catch (error) {
         console.error('Error during disconnection:', error);
@@ -245,87 +307,54 @@ sendButton.addEventListener('click', async () => {
         displayMessage('エラー: データ送信に失敗しました');
     }
 });
-
-// Fast Rate button event listener
-fastRateButton.addEventListener('click', async () => {
-    try {
-        if (!rxCharacteristic) {
-            displayMessage('エラー: デバイスと接続できませんでした');
-            return;
-        }
-
-        const fastRateData = new Uint8Array(7); // 1バイトのアドレス + 2バイトのデータ
-        fastRateData[0] = 0x02; // アドレス
-        fastRateData[1] = 6 & 0xFF;
-        fastRateData[2] = (6 >> 8) & 0xFF;
-        fastRateData[3] = 60 & 0xFF;
-        fastRateData[4] = (60 >> 8) & 0xFF;
-        fastRateData[5] = 4 & 0xFF;
-        fastRateData[6] = (4 >> 8) & 0xFF;
-
-        await rxCharacteristic.writeValue(fastRateData);
-        const timeString = getCurrentTimeString();
-        displayMessage(`Fast Rate 送信完了( ${timeString} )`);
-    } catch (error) {
-        console.error('Error during fast rate send:', error);
-        displayMessage('エラー: Fast Rate送信に失敗しました');
-    }
-});
-
-// Slow Rate button event listener
-slowRateButton.addEventListener('click', async () => {
-    try {
-        if (!rxCharacteristic) {
-            displayMessage('エラー: デバイスと接続できませんでした');
-            return;
-        }
-
-        const slowRateData = new Uint8Array(7); // 1バイトのアドレス + 2バイトのデータ
-        slowRateData[0] = 0x02; // アドレス
-        slowRateData[1] = 10 & 0xFF;
-        slowRateData[2] = (10 >> 8) & 0xFF;
-        slowRateData[3] = 100 & 0xFF;
-        slowRateData[4] = (100 >> 8) & 0xFF;
-        slowRateData[5] = 0 & 0xFF;
-        slowRateData[6] = (0 >> 8) & 0xFF;
-
-        await rxCharacteristic.writeValue(slowRateData);
-        const timeString = getCurrentTimeString();
-        displayMessage(`Slow Rate 送信完了( ${timeString} )`);
-    } catch (error) {
-        console.error('Error during slow rate send:', error);
-        displayMessage('エラー: Slow Rate送信に失敗しました');
-    }
-});
-
-// Demo Rate button event listener
-demoRateButton.addEventListener('click', async () => {
-    try {
-        if (!rxCharacteristic) {
-            displayMessage('エラー: デバイスと接続できませんでした');
-            return;
-        }
-
-        const demoRateData = new Uint8Array(7); // 1バイトのアドレス + 2バイトのデータ
-        demoRateData[0] = 0x02; // アドレス
-        demoRateData[1] = 25 & 0xFF;
-        demoRateData[2] = (25 >> 8) & 0xFF;
-        demoRateData[3] = 200 & 0xFF;
-        demoRateData[4] = (200 >> 8) & 0xFF;
-        demoRateData[5] = 3 & 0xFF;
-        demoRateData[6] = (3 >> 8) & 0xFF;
-
-        await rxCharacteristic.writeValue(demoRateData);
-        const timeString = getCurrentTimeString();
-        displayMessage(`Demo Rate 送信完了( ${timeString} )`);
-    } catch (error) {
-        console.error('Error during demo rate send:', error);
-        displayMessage('エラー: Demo Rate送信に失敗しました');
-    }
-});
 		
 function handleDataReceived(event) {
-    // Handle received data if needed
+    const value = event.target.value;
+    // 受信したデータを解析して、value1, value2, value3に反映
+    const receivedData = new Uint8Array(value.buffer);
+    const dataView = new DataView(receivedData.buffer);
+
+    // 受信データをvalue1, value2, value3に設定
+    if (receivedData[0] == 0x10) {
+        const num1 = dataView.getInt16(1, true);
+        const num2 = dataView.getInt16(3, true);
+        const num3 = dataView.getInt16(5, true);
+        const num4 = dataView.getInt16(7, true);
+        const num5 = dataView.getInt16(9, true);
+        const num6 = dataView.getInt16(11, true);
+
+        value1.value = num1;
+        value2.value = num2;
+        value3.value = num3;
+        value4.value = num4;
+        value5.value = num5;
+        value6.value = num6;
+    
+        drawCuboid();
+    }
+    else if (receivedData[0] === 0x11) {
+    // 受信メッセージに応じた処理
+        switch (receivedData[1]) {
+            case 0:
+                displayMessage('Open');
+                break;
+            case 1:
+                displayMessage('Close');
+                break;
+            case 2:
+                displayMessage('Entry');
+                break;
+            case 3:
+                displayMessage('Exit');
+                break;
+            default:
+                displayMessage('エラー: 受信メッセージ = ${receivedData[1]}');
+                break;
+        }
+    }
+    else {
+        displayMessage('エラー: 不正なデータを受信しました');
+    }
 }
 
 function preventNegativeInput(event) {
@@ -336,10 +365,4 @@ function preventNegativeInput(event) {
 		
 // 初期表示で直方体を描画
 drawCuboid();
-		
-value1.addEventListener('input', preventNegativeInput);
-value2.addEventListener('input', preventNegativeInput);
-value3.addEventListener('input', preventNegativeInput);
-value4.addEventListener('input', preventNegativeInput);
-value5.addEventListener('input', preventNegativeInput);
-value6.addEventListener('input', preventNegativeInput);
+resetButtons();
